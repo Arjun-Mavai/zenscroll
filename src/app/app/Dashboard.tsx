@@ -23,12 +23,29 @@ export default function Dashboard({ initialCategories, initialQuotes }: Dashboar
   const [author, setAuthor] = useState<string | null>(null);
   const [isSavedOpen, setIsSavedOpen] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
-  const { savedQuotes, removeQuote, swipeCount, isPro, upgradeToPro, isZenMode, toggleZenMode } = useAppStore();
+  const { savedQuotes, removeQuote, swipeCount, isPro, upgradeToPro, syncProStatus, isZenMode, toggleZenMode } = useAppStore();
 
   // If initialCategories is passed, use the first one as default?
   // Or keep Spirituality.
   // Note: we might want to update FilterBar to use initialCategories instead of local QUOTES logic
 
+
+  // Check paywall on mount and whenever swipeCount changes
+  // Sync Pro Status
+  useEffect(() => {
+      async function syncStatus() {
+          try {
+              const res = await fetch('/api/auth/me');
+              if (res.ok) {
+                  const data = await res.json();
+                  syncProStatus(!!data.user.is_pro);
+              }
+          } catch (e) {
+              console.error("Failed to sync pro status", e);
+          }
+      }
+      syncStatus();
+  }, [syncProStatus]);
 
   // Check paywall on mount and whenever swipeCount changes
   useEffect(() => {
@@ -39,14 +56,15 @@ export default function Dashboard({ initialCategories, initialQuotes }: Dashboar
 
   return (
     <main className={cn(
-        "flex min-h-screen flex-col items-center justify-between p-4 md:p-8 overflow-hidden transition-colors duration-700",
+        "flex h-dvh flex-col items-center justify-between p-4 overflow-hidden transition-colors duration-700",
         isZenMode 
             ? "bg-slate-950 text-slate-100" 
             : "bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-gray-900"
     )}>
-      <div className="w-full max-w-md flex flex-col items-center space-y-8 pt-8 relative z-10">
+      <div className="w-full max-w-md flex-1 flex flex-col items-center justify-center relative z-10">
         
-        <div className="w-full flex items-center justify-between px-4">
+        {/* Header */}
+        <div className="w-full flex items-center justify-between px-4 transition-opacity duration-300">
           <div className="text-left">
             <h1 className={cn("text-2xl md:text-3xl font-bold tracking-tight font-display transition-colors", isZenMode ? "text-white" : "text-gray-900")}>
               Mindful
@@ -99,15 +117,20 @@ export default function Dashboard({ initialCategories, initialQuotes }: Dashboar
           </div>
         </div>
 
-        <FilterBar 
-            category={category} 
-            setCategory={setCategory} 
-            author={author}
-            setAuthor={setAuthor}
-            onLockedClick={() => setShowPaywall(true)}
-            availableQuotes={initialQuotes || []} 
-            categories={initialCategories}
-        />
+        {/* Filters */}
+        <div 
+            className="w-full transition-opacity duration-300 mt-6 mb-2"
+        >
+            <FilterBar 
+                category={category} 
+                setCategory={setCategory} 
+                author={author}
+                setAuthor={setAuthor}
+                onLockedClick={() => setShowPaywall(true)}
+                availableQuotes={initialQuotes || []} 
+                categories={initialCategories}
+            />
+        </div>
 
         <div className="w-full relative flex-1 min-h-[500px] flex items-center justify-center py-8">
             {/* Background Ambience for Zen Mode */}
@@ -117,7 +140,11 @@ export default function Dashboard({ initialCategories, initialQuotes }: Dashboar
                     <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-700" />
                 </div>
             )}
-           <CardStack category={category} authorFilter={author} initialQuotes={initialQuotes} />
+           <CardStack 
+                category={category} 
+                authorFilter={author} 
+                initialQuotes={initialQuotes} 
+            />
         </div>
 
         <p className={cn("text-xs text-center pb-4 transition-colors", isZenMode ? "text-slate-500" : "text-gray-400")}>
@@ -134,12 +161,7 @@ export default function Dashboard({ initialCategories, initialQuotes }: Dashboar
 
       <PaywallModal 
         isOpen={showPaywall} 
-        onClose={() => setShowPaywall(false)} // Optional: prevent closing if strict
-        onUpgrade={() => {
-            upgradeToPro();
-            setShowPaywall(false);
-            alert("Welcome to Pro! (Demo Mode)");
-        }}
+        onClose={() => setShowPaywall(false)} 
       />
     </main>
   );

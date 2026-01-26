@@ -6,9 +6,9 @@ import { Card } from "@/components/Card";
 import { Category, Quote } from "@/data/quotes";
 import { useAppStore } from "@/hooks/useAppStore";
 
-export const CardStack = ({ category, authorFilter, initialQuotes }: { category: Category; authorFilter: string | null; initialQuotes: Quote[] }) => {
+export const CardStack = ({ category, authorFilter, initialQuotes, onDragChange }: { category: Category; authorFilter: string | null; initialQuotes: Quote[], onDragChange?: (isDragging: boolean) => void }) => {
   const [cards, setCards] = useState<Quote[]>([]);
-  const { saveQuote, incrementSwipe } = useAppStore();
+  const { saveQuote, incrementSwipe, markAsViewed } = useAppStore();
 
   useEffect(() => {
     // Determine base quotes from prop OR fallback to empty
@@ -32,9 +32,10 @@ export const CardStack = ({ category, authorFilter, initialQuotes }: { category:
 
   const handleSwipe = (direction: 'left' | 'right', id: string, quote: Quote) => {
     incrementSwipe();
+    markAsViewed(id); // Mark as seen
     
     if (direction === 'right') {
-      saveQuote(quote);
+      // saveQuote(quote); // Disabled per user request. Right swipe is now just "Next".
     }
 
     setCards((prev) => {
@@ -73,12 +74,11 @@ export const CardStack = ({ category, authorFilter, initialQuotes }: { category:
             quote={card}
             index={index}
             draggable={index === 0}
-            onSwipe={(dir) => handleSwipe(dir, card.id, card)}
+            onSwipe={(dir) => {
+                handleSwipe(dir, card.id, card);
+            }}
             onSave={(q) => {
                 saveQuote(q);
-                // Optional: also remove card after save tap?
-                // For now, let's just save and keep it there, or swipe right automatically?
-                // Let's just save.
             }}
           />
         ))}

@@ -6,10 +6,9 @@ import { Lock, Sparkles, Check } from "lucide-react";
 interface PaywallModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpgrade: () => void;
 }
 
-export const PaywallModal = ({ isOpen, onClose, onUpgrade }: PaywallModalProps) => {
+export const PaywallModal = ({ isOpen, onClose }: PaywallModalProps) => {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -40,7 +39,7 @@ export const PaywallModal = ({ isOpen, onClose, onUpgrade }: PaywallModalProps) 
                     Unlock Inner Peace
                 </h2>
                 <p className="text-indigo-100 text-sm relative z-10">
-                    You've reached your daily free limit.
+                    You&apos;ve reached your daily free limit.
                 </p>
              </div>
 
@@ -63,7 +62,7 @@ export const PaywallModal = ({ isOpen, onClose, onUpgrade }: PaywallModalProps) 
                             window.location.href = data.url;
                         } else {
                             // Fallback for demo if API fails (no env vars)
-                            onUpgrade(); 
+                           alert("Payment system is in test mode. Please configure LemonSqueezy.");
                         }
                     }}
                     className="w-full py-4 bg-gray-900 text-white rounded-xl font-bold text-lg hover:bg-gray-800 transition-all transform active:scale-95 shadow-lg flex items-center justify-center gap-2 group"

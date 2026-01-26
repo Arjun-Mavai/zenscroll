@@ -9,7 +9,7 @@ import Image from "next/image";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { savedQuotes, swipeCount, isPro } = useAppStore();
+  const { savedQuotes, swipeCount, isPro, syncProStatus } = useAppStore();
   const [user, setUser] = useState<{ email: string; name: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -20,6 +20,7 @@ export default function ProfilePage() {
             if (res.ok) {
                 const data = await res.json();
                 setUser(data.user);
+                syncProStatus(!!data.user.is_pro);
             } else {
                 // If fetching fails (unauthorized), redirect to login
                 router.push("/login");
@@ -31,7 +32,7 @@ export default function ProfilePage() {
         }
     }
     fetchUser();
-  }, [router]);
+  }, [router, syncProStatus]);
 
   const handleLogout = async () => {
     try {

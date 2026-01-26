@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import { Quote } from "@/data/quotes";
 
 interface AppState {
+  viewedQuotes: string[];
   savedQuotes: Quote[];
   swipeCount: number;
   lastSwipeDate: string;
@@ -10,22 +11,31 @@ interface AppState {
   isZenMode: boolean;
   
   // Actions
+  markAsViewed: (id: string) => void;
   saveQuote: (quote: Quote) => void;
   removeQuote: (id: string) => void;
   incrementSwipe: () => void;
   upgradeToPro: () => void;
   resetSwipeCount: () => void;
   toggleZenMode: () => void;
+  syncProStatus: (status: boolean) => void;
 }
 
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
+      viewedQuotes: [], // Added
       savedQuotes: [],
       swipeCount: 0,
       lastSwipeDate: new Date().toDateString(),
       isPro: false,
       isZenMode: false,
+
+      markAsViewed: (id) => // Added
+        set((state) => {
+          if (state.viewedQuotes.includes(id)) return state;
+          return { viewedQuotes: [...state.viewedQuotes, id] };
+        }),
 
       saveQuote: (quote) =>
         set((state) => {
@@ -49,8 +59,9 @@ export const useAppStore = create<AppState>()(
         }),
 
       upgradeToPro: () => set({ isPro: true }),
+      syncProStatus: (status) => set({ isPro: status }),
       toggleZenMode: () => set((state) => ({ isZenMode: !state.isZenMode })),
-      resetSwipeCount: () => set({ swipeCount: 0 }),
+      resetSwipeCount: () => set((state) => ({ swipeCount: 0 })), // Modified
     }),
     {
       name: "mindful-storage", // name of the item in localStorage

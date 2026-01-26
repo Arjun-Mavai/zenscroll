@@ -1,8 +1,36 @@
-import Link from "next/link";
-import { ArrowRight, Sparkles, Shield, Zap, Quote, Brain, Smartphone, Heart } from "lucide-react";
-import { CardDemoAnimation } from "@/components/CardDemoAnimation";
 
-export default function LandingPage() {
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowRight, Sparkles, Shield, Zap, Quote, Brain, Smartphone, Heart, Sun, Activity } from "lucide-react";
+import { CardDemoAnimation } from "@/components/CardDemoAnimation";
+import { cookies } from "next/headers";
+import { createClient } from "@supabase/supabase-js";
+
+// Initialize Supabase for Server Component
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+async function getUser() {
+  const cookieStore = await cookies();
+  const userId = cookieStore.get('auth_token')?.value;
+
+  if (!userId) return null;
+
+  const { data: user } = await supabase
+    .from('card_users')
+    .select('id, name, is_pro')
+    .eq('id', userId)
+    .single();
+
+  return user;
+}
+
+export default async function LandingPage() {
+  const user = await getUser();
+  const isLoggedIn = !!user;
+  const isPro = !!user?.is_pro;
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -15,17 +43,24 @@ export default function LandingPage() {
             Mindful
           </div>
           <div className="flex items-center gap-4">
-            <Link 
-              href="/login" 
-              className="px-5 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors"
-            >
-              Sign In
-            </Link>
+            {!isLoggedIn ? (
+                <Link 
+                  href="/login" 
+                  className="px-5 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors"
+                >
+                  Sign In
+                </Link>
+            ) : (
+                <div className="text-sm font-medium text-gray-600">
+                    Welcome, {user?.name || 'Friend'}
+                </div>
+            )}
+            
             <Link 
               href="/app" 
               className="px-5 py-2 text-sm font-medium bg-black text-white rounded-full hover:bg-gray-800 transition-colors"
             >
-              Get Started
+              {isLoggedIn ? "Dashboard" : "Get Started"}
             </Link>
           </div>
         </div>
@@ -53,19 +88,35 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-                <Link 
-                href="/app" 
-                className="px-8 py-4 bg-black text-white rounded-full font-medium text-lg hover:scale-105 transition-transform flex items-center gap-2"
-                >
-                Start Free Trial <ArrowRight size={18} />
-                </Link>
+                {!isPro ? (
+                     <Link 
+                     href="/app" 
+                     className="px-8 py-4 bg-black text-white rounded-full font-medium text-lg hover:scale-105 transition-transform flex items-center gap-2"
+                     >
+                     Start Free Trial <ArrowRight size={18} />
+                     </Link>
+                ) : (
+                    <Link 
+                    href="/app" 
+                    className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full font-medium text-lg hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-indigo-200"
+                    >
+                    <Sparkles size={18} /> Enter Sanctuary 
+                    </Link>
+                )}
+               
                 <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <div className="flex -space-x-2">
-                        {[1,2,3].map(i => (
-                            <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-200" />
-                        ))}
+                    <div className="flex -space-x-3">
+                        <div className="w-10 h-10 rounded-full border-2 border-white relative overflow-hidden">
+                            <Image src="/avatar1.png" alt="User 1" fill className="object-cover" />
+                        </div>
+                        <div className="w-10 h-10 rounded-full border-2 border-white relative overflow-hidden">
+                            <Image src="/avatar2.png" alt="User 2" fill className="object-cover" />
+                        </div>
+                        <div className="w-10 h-10 rounded-full border-2 border-white relative overflow-hidden">
+                            <Image src="/avatar3.png" alt="User 3" fill className="object-cover" />
+                        </div>
                     </div>
-                    <span>Join 10,000+ mindful users</span>
+                    <span>Join 1,000+ mindful users</span>
                 </div>
             </div>
           </div>
@@ -167,6 +218,18 @@ export default function LandingPage() {
               title="Save & Reflect"
               description="Build your personal collection of wisdom. Review your saved cards whenever you need a boost."
               color="from-red-400 to-pink-500"
+            />
+             <FeatureCard 
+              icon={Sun}
+              title="Daily Zen"
+              description="Start your morning with a single, powerful thought. Build a habit of intention."
+              color="from-yellow-400 to-orange-400"
+            />
+             <FeatureCard 
+              icon={Activity}
+              title="Mood Insights"
+              description="Track your emotional journey through the wisdom that resonates with you most."
+              color="from-emerald-400 to-teal-500"
             />
           </div>
         </div>
