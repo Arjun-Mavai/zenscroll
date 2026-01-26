@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌿 Zenscroll (formerly Mindful)
 
-## Getting Started
+**Turn Doomscrolling into Mindful Scrolling.**
 
-First, run the development server:
+Zenscroll is a premium digital sanctuary designed to replace the cheap dopamine of social media with the serotonin of wisdom. Instead of endless feeds of noise, swipe through curated insights from history's greatest minds in Spirituality, Business, Philosophy, and Science.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+![Zenscroll Demo](https://images.unsplash.com/photo-1519098901909-b1553a1190af?q=80&w=2574&auto=format&fit=crop)
+_(Note: Replace with actual screenshot)_
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **🧠 Mindful Swiping**: Tinder-style interface designed for focus, not addiction. Swipe right to save wisdom, left to let go.
+- **🎨 Zen Mode**: Toggle between a vibrant daylight mode and a deep, ambient "Zen Mode" for night-time reflection.
+- **🔒 Premium Categories**: Exclusive access to "Ted Wisdom" and "Scientific Proven" facts (Paywall integrated).
+- **👤 Smart Profiling**: Tracks your daily swipes and saved collection.
+- **⚡ Performance First**: Built with Next.js Server Components for lightning-fast data fetching.
+- **🔍 Deep Filtering**: Filter wisdom not just by Category (e.g., Stoicism), but also by specific Authors (e.g., Marcus Aurelius).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Tech Stack
 
-## Learn More
+- **Framework**: [Next.js 14](https://nextjs.org/) (App Router, Server Components)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS + Custom Design System
+- **Animation**: Framer Motion (Spring Physics, AnimatePresence)
+- **Database**: Supabase (PostgreSQL)
+- **State Management**: Zustand
+- **Icons**: Lucide React
 
-To learn more about Next.js, take a look at the following resources:
+## 🚀 Getting Started
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Prerequisites
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Node.js 18+
+- Supabase Account
 
-## Deploy on Vercel
+### Installation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1.  **Clone the repository**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    ```bash
+    git clone https://github.com/Arjun-Mavai/zenscroll.git
+    cd zenscroll
+    ```
+
+2.  **Install dependencies**
+
+    ```bash
+    npm install
+    ```
+
+3.  **Set up Environment Variables**
+    Create a `.env.local` file:
+
+    ```env
+    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    SUPABASE_SERVICE_ROLE_KEY=your_service_role_key # Only for seeding
+    ```
+
+4.  **Seed the Database**
+    Populate your database with the initial curated quotes:
+
+    ```bash
+    npx tsx src/scripts/seed.ts
+    ```
+
+5.  **Run the App**
+    ```bash
+    npm run dev
+    ```
+
+## 🤝 Contribution
+
+This is an open initiative to make the internet a calmer place. Feel free to open PRs for new features or bug fixes.
+
+## 📄 License
+
+MIT.
+
+---
+
+_Crafted with ❤️ by Arjun Mavai._
