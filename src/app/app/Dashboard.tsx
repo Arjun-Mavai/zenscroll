@@ -9,7 +9,7 @@ import { Heart, User } from "lucide-react";
 import { PaywallModal } from "@/components/PaywallModal";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { FilterBar } from "@/components/FilterBar";
+import { TopMenu } from "@/components/TopMenu";
 import { QUOTES } from "@/data/quotes"; // Import QUOTES directly for now
 
 // Extended props to accept initial data from Server Component
@@ -114,14 +114,7 @@ export default function Dashboard({ initialCategories, initialQuotes }: Dashboar
                 </span>
                 )}
             </button>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div 
-            className="w-full transition-opacity duration-300 mt-6 mb-2"
-        >
-            <FilterBar 
+            <TopMenu 
                 category={category} 
                 setCategory={setCategory} 
                 author={author}
@@ -130,7 +123,10 @@ export default function Dashboard({ initialCategories, initialQuotes }: Dashboar
                 availableQuotes={initialQuotes || []} 
                 categories={initialCategories}
             />
+          </div>
         </div>
+
+
 
         <div className="w-full relative flex-1 min-h-[500px] flex items-center justify-center py-8">
             {/* Background Ambience for Zen Mode */}

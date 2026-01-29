@@ -5,8 +5,7 @@ import { User, LogOut, Check, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import Image from "next/image";
-
+ 
 export default function ProfilePage() {
   const router = useRouter();
   const { savedQuotes, swipeCount, isPro, syncProStatus } = useAppStore();
@@ -38,7 +37,7 @@ export default function ProfilePage() {
     try {
         await fetch("/api/auth/logout", { method: "POST" });
         router.push("/login"); 
-        router.refresh(); // Important to clear any client cache/middleware state
+        
     } catch (error) {
         console.error("Logout failed", error);
     }

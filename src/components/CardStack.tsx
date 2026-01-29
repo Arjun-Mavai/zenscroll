@@ -6,7 +6,7 @@ import { Card } from "@/components/Card";
 import { Category, Quote } from "@/data/quotes";
 import { useAppStore } from "@/hooks/useAppStore";
 
-export const CardStack = ({ category, authorFilter, initialQuotes, onDragChange }: { category: Category; authorFilter: string | null; initialQuotes: Quote[], onDragChange?: (isDragging: boolean) => void }) => {
+export const CardStack = ({ category, authorFilter, initialQuotes }: { category: Category; authorFilter: string | null; initialQuotes: Quote[] }) => {
   const [cards, setCards] = useState<Quote[]>([]);
   const { saveQuote, incrementSwipe, markAsViewed } = useAppStore();
 

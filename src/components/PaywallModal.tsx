@@ -52,19 +52,11 @@ export const PaywallModal = ({ isOpen, onClose }: PaywallModalProps) => {
                 </div>
 
                 <button
-                    onClick={async () => {
-                        const res = await fetch('/api/payment/checkout', {
-                            method: 'POST',
-                            body: JSON.stringify({ email: "user@example.com" }) // Replace with actual user email
-                        });
-                        const data = await res.json();
-                        if (data.url) {
-                            window.location.href = data.url;
-                        } else {
-                            // Fallback for demo if API fails (no env vars)
-                           alert("Payment system is in test mode. Please configure LemonSqueezy.");
-                        }
+                    onClick={() => {
+                        // Redirect to secure backend endpoint
+                        window.location.href = "/api/payment/checkout"; 
                     }}
+
                     className="w-full py-4 bg-gray-900 text-white rounded-xl font-bold text-lg hover:bg-gray-800 transition-all transform active:scale-95 shadow-lg flex items-center justify-center gap-2 group"
                 >
                     <span>Upgrade for $3.99/mo</span>
