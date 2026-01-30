@@ -1,12 +1,25 @@
 import { useState, useEffect } from 'react';
 
 /**
+ * Interface for the BeforeInstallPromptEvent
+ * This event is not yet standard, so we define it manually.
+ */
+interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: string[];
+  readonly userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed';
+    platform: string;
+  }>;
+  prompt(): Promise<void>;
+}
+
+/**
  * Custom hook to handle PWA installation logic and detection.
  * Provides 'isPwaInstalled' status and an 'installPwa' function.
  */
 export function usePwa() {
   const [isPwaInstalled, setIsPwaInstalled] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
 
   useEffect(() => {
@@ -37,7 +50,8 @@ export function usePwa() {
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
       // Stash the event so it can be triggered later.
-      setDeferredPrompt(e);
+      // We cast it because the event listener uses the standard Event type
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
       setIsInstallable(true);
       console.log("PWA Install Prompt captured");
     };
