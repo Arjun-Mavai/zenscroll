@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Filter, User, X, Home, LayoutDashboard, ChevronRight } from "lucide-react";
+import { Filter, User, X, Home, LayoutDashboard, ChevronRight, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Category, Quote } from "@/data/quotes";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -29,6 +30,17 @@ export const TopMenu = ({
 }: TopMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"categories" | "authors">("categories");
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/login');
+      router.refresh();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   // Derive unique authors for the selected category
   const authors = useMemo(() => {
@@ -40,13 +52,13 @@ export const TopMenu = ({
   return (
     <>
       {/* Trigger Button */}
-      <button
+    { !isOpen && <button
         onClick={() => setIsOpen(true)}
-        className="p-3 rounded-full bg-white/80 backdrop-blur-md border border-white/50 text-gray-700 shadow-sm hover:shadow-md transition-all active:scale-95"
+        className="p-3 rounded-full bg-white/80 backdrop-blur-md border border-white/50 text-gray-700 shadow-sm hover:shadow-md transition-all active:scale-95 z-1000"
       >
-        <LayoutDashboard size={20} />
+       <LayoutDashboard size={20} />
       </button>
-
+}
       {/* Overlay */}
       <AnimatePresence>
         {isOpen && (
@@ -66,7 +78,7 @@ export const TopMenu = ({
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white/95 backdrop-blur-2xl shadow-2xl z-50 flex flex-col border-l border-white/20"
+              className="fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white/95 backdrop-blur-2xl shadow-2xl z-50 flex flex-col border-l border-white/20 z-999"
             >
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-100">
@@ -97,6 +109,13 @@ export const TopMenu = ({
                   <User size={24} className="text-gray-400 group-hover:text-purple-500" />
                   <span className="text-xs font-bold uppercase tracking-wider">Profile</span>
                 </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex col-span-2 flex-row items-center justify-center p-4 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors gap-2 group w-full"
+                >
+                  <LogOut size={20} className="text-red-500 group-hover:text-red-700" />
+                  <span className="text-xs font-bold uppercase tracking-wider">Sign Out</span>
+                </button>
               </div>
 
               {/* Tabs */}

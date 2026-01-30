@@ -65,14 +65,14 @@ export default function Dashboard({ initialCategories, initialQuotes }: Dashboar
         
         {/* Header */}
         <div className="w-full flex items-center justify-between px-4 transition-opacity duration-300">
-          <div className="text-left">
-            <h1 className={cn("text-2xl md:text-3xl font-bold tracking-tight font-display transition-colors", isZenMode ? "text-white" : "text-gray-900")}>
+          <Link href="/" className="text-left group cursor-pointer block">
+            <h1 className={cn("text-2xl md:text-3xl font-bold tracking-tight font-display transition-colors group-hover:opacity-80", isZenMode ? "text-white" : "text-gray-900")}>
               Mindful
             </h1>
-            <p className={cn("text-xs md:text-sm", isZenMode ? "text-slate-400" : "text-gray-500")}>
+            <p className={cn("text-xs md:text-sm transition-colors group-hover:opacity-80", isZenMode ? "text-slate-400" : "text-gray-500")}>
               {isZenMode ? "Zen Mode Active" : "Daily Wisdom"}
             </p>
-          </div>
+          </Link>
           
           <div className="flex items-center gap-3">
              <Link 
