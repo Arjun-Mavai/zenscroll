@@ -8,7 +8,18 @@ import { useAppStore } from "@/hooks/useAppStore";
 
 export const CardStack = ({ category, authorFilter, initialQuotes }: { category: Category; authorFilter: string | null; initialQuotes: Quote[] }) => {
   const [cards, setCards] = useState<Quote[]>([]);
-  const { saveQuote, incrementSwipe, markAsViewed } = useAppStore();
+  const { saveQuote, incrementSwipe, markAsViewed, viewedQuotes } = useAppStore();
+
+  // Fisher-Yates shuffle helper
+  const shuffle = (array: Quote[]) => {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex != 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
+  };
 
   useEffect(() => {
     // Determine base quotes from prop OR fallback to empty
@@ -21,18 +32,24 @@ export const CardStack = ({ category, authorFilter, initialQuotes }: { category:
     if (authorFilter) {
         filtered = filtered.filter(q => q.author === authorFilter);
     }
+
+    // Initial Shuffle
+    let shuffled = shuffle([...filtered]);
     
-    // Fallback logic for small datasets (duplication)
-    if (filtered.length > 0 && filtered.length < 3) {
-        setCards([...filtered, ...filtered.map(q => ({...q, id: q.id + '-dup'}))]);
+    // Ensure we have at least 3 cards to start (duplicate if needed for small sets)
+    if (shuffled.length > 0 && shuffled.length < 3) {
+        setCards([...shuffled, ...shuffled.map(q => ({...q, id: q.id + '-dup-' + Math.random().toString(36).substr(2, 5)}))]);
     } else {
-        setCards([...filtered, ...filtered.map(q => ({...q, id: q.id + '-dup'}))]);
+        setCards(shuffled);
     }
   }, [category, authorFilter, initialQuotes]);
 
   const handleSwipe = (direction: 'left' | 'right', id: string, quote: Quote) => {
     incrementSwipe();
-    markAsViewed(id); // Mark as seen
+    
+    // Extract base ID (remove -dup suffixes) to track viewed status correctly
+    const baseId = id.split('-')[0];
+    markAsViewed(baseId); 
     
     if (direction === 'right') {
       // saveQuote(quote); // Disabled per user request. Right swipe is now just "Next".
@@ -52,11 +69,29 @@ export const CardStack = ({ category, authorFilter, initialQuotes }: { category:
 
         if (possibleQuotes.length === 0) return newCards;
 
-        const moreQuotes = possibleQuotes.map(q => ({
+        // Strategy: Prioritize Unseen Quotes -> Then Random Seen Quotes
+        // 1. Filter out quotes currently in the stack (by base ID)
+        const currentStackBaseIds = newCards.map(c => c.id.split('-')[0]);
+        const availablePool = possibleQuotes.filter(q => !currentStackBaseIds.includes(q.id));
+
+        // 2. Separate into Unseen and Seen
+        const unseen = availablePool.filter(q => !viewedQuotes.includes(q.id));
+        const seen = availablePool.filter(q => viewedQuotes.includes(q.id));
+
+        // 3. Shuffle both groups
+        const shuffledUnseen = shuffle([...unseen]);
+        const shuffledSeen = shuffle([...seen]);
+
+        // 4. Combine: Unseen first, then Seen
+        const nextBatch = [...shuffledUnseen, ...shuffledSeen];
+
+        // 5. Take top 5 (or fewer) and add unique IDs
+        const toAdd = nextBatch.slice(0, 5).map(q => ({
             ...q, 
-            id: q.id + '-' + Math.random().toString(36).substr(2, 9)
+            id: q.id + '-' + Math.random().toString(36).substr(2, 9) // Ensure unique key for React
         }));
-        return [...newCards, ...moreQuotes];
+        
+        return [...newCards, ...toAdd];
       }
       
       return newCards;

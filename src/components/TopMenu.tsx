@@ -30,6 +30,7 @@ export const TopMenu = ({
 }: TopMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"categories" | "authors">("categories");
+  const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -48,6 +49,15 @@ export const TopMenu = ({
     const uniqueAuthors = Array.from(new Set(categoryQuotes.map((q) => q.author)));
     return uniqueAuthors.sort();
   }, [category, availableQuotes]);
+
+  // Filtered lists based on search
+  const filteredCategories = (categories || []).filter(c => 
+    c.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredAuthors = authors.filter(a => 
+    a.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <>
@@ -83,12 +93,21 @@ export const TopMenu = ({
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-100">
                 <h2 className="text-xl font-display font-bold text-gray-900">Menu</h2>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                >
-                  <X size={24} className="text-gray-500" />
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={handleLogout}
+                        className="p-2 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                        title="Sign Out"
+                    >
+                        <LogOut size={20} />
+                    </button>
+                    <button
+                    onClick={() => setIsOpen(false)}
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                    >
+                    <X size={24} className="text-gray-500" />
+                    </button>
+                </div>
               </div>
 
               {/* Navigation Links */}
@@ -109,13 +128,17 @@ export const TopMenu = ({
                   <User size={24} className="text-gray-400 group-hover:text-purple-500" />
                   <span className="text-xs font-bold uppercase tracking-wider">Profile</span>
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="flex col-span-2 flex-row items-center justify-center p-4 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors gap-2 group w-full"
-                >
-                  <LogOut size={20} className="text-red-500 group-hover:text-red-700" />
-                  <span className="text-xs font-bold uppercase tracking-wider">Sign Out</span>
-                </button>
+              </div>
+
+              {/* Search Input */}
+              <div className="px-6 mt-4">
+                <input
+                    type="text"
+                    placeholder="Search categories or authors..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 border-none focus:ring-2 focus:ring-indigo-100 text-sm"
+                />
               </div>
 
               {/* Tabs */}
@@ -163,25 +186,31 @@ export const TopMenu = ({
                       exit={{ opacity: 0, x: 20 }}
                       className="space-y-6"
                     >
-                      {(categories || []).map((cat) => (
-                        <button
-                          key={cat}
-                          onClick={() => {
-                            setCategory(cat);
-                            setAuthor(null);
-                            // Optional: Close menu on selection? User might want to browse.
-                          }}
-                          className={cn(
-                            "w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-between group",
-                            category === cat
-                              ? "bg-indigo-600 text-white shadow-md"
-                              : "bg-white border border-gray-100 text-gray-600 hover:border-gray-200 hover:shadow-sm"
-                          )}
-                        >
-                          {cat}
-                          {category === cat && <CheckIcon />}
-                        </button>
-                      ))}
+                      {filteredCategories.length === 0 ? (
+                        <p className="text-sm text-gray-400 text-center py-8">
+                            No categories found.
+                        </p>
+                      ) : (
+                        filteredCategories.map((cat) => (
+                            <button
+                            key={cat}
+                            onClick={() => {
+                                setCategory(cat);
+                                setAuthor(null);
+                                // Optional: Close menu on selection? User might want to browse.
+                            }}
+                            className={cn(
+                                "w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-between group",
+                                category === cat
+                                ? "bg-indigo-600 text-white shadow-md"
+                                : "bg-white border border-gray-100 text-gray-600 hover:border-gray-200 hover:shadow-sm"
+                            )}
+                            >
+                            {cat}
+                            {category === cat && <CheckIcon />}
+                            </button>
+                        ))
+                      )}
                     </motion.div>
                   ) : (
                     <motion.div
@@ -204,12 +233,12 @@ export const TopMenu = ({
                          {author === null && <CheckIcon />}
                       </button>
                       
-                      {authors.length === 0 ? (
+                      {filteredAuthors.length === 0 ? (
                         <p className="text-sm text-gray-400 text-center py-8">
-                            No authors found in this category.
+                            No authors found matching "{searchTerm}".
                         </p>
                       ) : (
-                        authors.map((auth) => (
+                        filteredAuthors.map((auth) => (
                             <button
                             key={auth}
                             onClick={() => setAuthor(auth)}

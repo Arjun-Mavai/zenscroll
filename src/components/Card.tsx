@@ -27,8 +27,10 @@ const getCategoryGradient = (category: string) => {
 };
 
 export const Card = ({ quote, onSwipe, onSave, index, draggable }: CardProps) => {
-  const { savedQuotes } = useAppStore();
-  const isSaved = savedQuotes.some(q => q.id === quote.id);
+  const { savedQuotes, viewedQuotes } = useAppStore();
+  const baseId = quote.id.split('-')[0];
+  const isSaved = savedQuotes.some(q => q.id === baseId);
+  const isViewed = viewedQuotes.includes(baseId);
   const [isHovered, setIsHovered] = useState(false);
   
   const x = useMotionValue(0);
@@ -111,7 +113,7 @@ export const Card = ({ quote, onSwipe, onSave, index, draggable }: CardProps) =>
                 </span>
                 
                 {/* Viewed Tag */}
-                {useAppStore.getState().viewedQuotes.includes(quote.id) && (
+                {isViewed && (
                      <span className="px-3 py-1.5 bg-indigo-500/10 backdrop-blur-md rounded-full text-[10px] font-bold tracking-wider uppercase text-indigo-600 shadow-sm border border-indigo-200/50 flex items-center gap-1">
                         <Check size={9} strokeWidth={4} /> Viewed
                      </span>
