@@ -3,11 +3,13 @@
 import React, { use, useState, useEffect } from 'react';
 import { useRouter, notFound, useSearchParams } from 'next/navigation';
 import FlipCard from '@/components/FlipCard';
-import { syllabusData } from '@/data/syllabusData';
+import { syllabusData, Topic } from '@/data/syllabusData';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Sparkles, Brain, Lightbulb } from 'lucide-react';
+import { ArrowLeft, BookOpen, Sparkles, Brain, Lightbulb, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SideDrawer } from '@/components/SideDrawer';
+import { SyllabusSearch } from '@/components/SyllabusSearch';
+import { ViewToggle } from '@/components/ViewToggle';
 
 // Types for the params
 type Props = {
@@ -26,13 +28,27 @@ export default function UnitPage({ params }: Props) {
   
   // Search State (Viral Factor)
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Keyboard shortcut for Command Palette
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setIsSearchOpen((open) => !open);
+      }
+    }
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
 
   // Single Active Flip State (Viral Factor)
   const [flippedCardId, setFlippedCardId] = useState<number | null>(null);
   
   // SideDrawer State
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedTopic, setSelectedTopic] = useState<any>(null);
+  const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
 
   const unit = syllabusData.units[unitId];
 
@@ -75,7 +91,7 @@ export default function UnitPage({ params }: Props) {
     (t.id.toString() === searchTerm)
   );
 
-  const handleOpenDetails = (topic: any) => {
+  const handleOpenDetails = (topic: Topic) => {
     setSelectedTopic(topic);
     setIsDrawerOpen(true);
   };
@@ -100,44 +116,58 @@ export default function UnitPage({ params }: Props) {
       {/* Sticky Premium Header */}
       <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-           <button 
-             onClick={() => router.back()}
-             className="p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors flex items-center text-slate-600 group"
-           >
-             <ArrowLeft className="w-5 h-5 mr-1 group-hover:-translate-x-1 transition-transform" />
-             <span className="font-medium hidden sm:inline">Back</span>
-           </button>
-           
-           <h1 className="text-sm sm:text-lg font-bold truncate max-w-[150px] sm:max-w-md text-slate-900 font-display">
-             {currentTitle}
-           </h1>
+           <div className="flex items-center gap-3">
+             <button 
+               onClick={() => router.back()}
+               className="p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors flex items-center text-slate-600 group"
+             >
+               <ArrowLeft className="w-5 h-5 mr-1 group-hover:-translate-x-1 transition-transform" />
+               <span className="font-medium hidden sm:inline">Back</span>
+             </button>
+             <h1 className="text-sm sm:text-lg font-bold truncate max-w-[150px] sm:max-w-xs text-slate-900 font-display">
+               {currentTitle}
+              </h1>
+           </div>
 
-           <div className="flex bg-slate-100 p-1 rounded-full border border-slate-200">
-              <button
-                onClick={() => setLanguage('hi')}
-                className={cn(
-                  "px-3 py-1 text-xs font-bold rounded-full transition-all duration-200",
-                  language === 'hi' 
-                    ? "bg-white text-indigo-600 shadow-sm" 
-                    : "text-slate-500 hover:text-slate-700"
-                )}
+           <div className="flex items-center gap-2">
+              {/* Search Trigger */}
+              <button 
+                onClick={() => setIsSearchOpen(true)}
+                className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors hidden md:block"
+                title="Search (Cmd+K)"
               >
-                हिंदी
+                <Search className="w-5 h-5" />
               </button>
-              <button
-                onClick={() => setLanguage('en')}
-                className={cn(
-                  "px-3 py-1 text-xs font-bold rounded-full transition-all duration-200",
-                  language === 'en' 
-                    ? "bg-white text-indigo-600 shadow-sm" 
-                    : "text-slate-500 hover:text-slate-700"
-                )}
-              >
-                ENG
-              </button>
+
+              <div className="flex bg-slate-100 p-1 rounded-full border border-slate-200">
+               <button
+                 onClick={() => setLanguage('hi')}
+                 className={cn(
+                   "px-3 py-1 text-xs font-bold rounded-full transition-all duration-200",
+                   language === 'hi' 
+                     ? "bg-white text-indigo-600 shadow-sm" 
+                     : "text-slate-500 hover:text-slate-700"
+                 )}
+               >
+                 हिंदी
+               </button>
+               <button
+                 onClick={() => setLanguage('en')}
+                 className={cn(
+                   "px-3 py-1 text-xs font-bold rounded-full transition-all duration-200",
+                   language === 'en' 
+                     ? "bg-white text-indigo-600 shadow-sm" 
+                     : "text-slate-500 hover:text-slate-700"
+                 )}
+               >
+                 ENG
+               </button>
+             </div>
            </div>
         </div>
       </div>
+
+      <SyllabusSearch open={isSearchOpen} setOpen={setIsSearchOpen} />
 
       <main className="max-w-7xl mx-auto py-10 px-6">
         <div className="mb-10 text-center space-y-6">
@@ -147,7 +177,7 @@ export default function UnitPage({ params }: Props) {
             </span>
             
             {/* Search Bar (Viral Factor) */}
-            <div className="max-w-md mx-auto relative group">
+            {/* <div className="max-w-md mx-auto relative group">
                 <input 
                   type="text" 
                   placeholder={language === 'hi' ? "Search mnemonics, topics..." : "Search 'Trick', 'Veda'..."}
@@ -158,20 +188,26 @@ export default function UnitPage({ params }: Props) {
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
                     <Sparkles className="w-5 h-5" />
                 </div>
-            </div>
+            </div> */}
 
-            <p className="text-slate-500 max-w-2xl mx-auto leading-relaxed text-lg">
+            {/* <p className="text-slate-500 max-w-2xl mx-auto leading-relaxed text-lg">
                {language === 'hi' 
                  ? "फ्लैशकार्ड पर टैप करके विस्तार से पढ़ें। 'ट्रिक्स' खोजने के लिए सर्च करें।" 
                  : "Tap to flip. Search 'Trick' to find mnemonics instantly."}
-            </p>
+            </p> */}
+
+            {/* View Toggle */}
+            <div className="flex justify-center mt-6">
+                <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+            </div>
         </div>
 
+        {viewMode === 'grid' ? (
         <motion.div 
           variants={container}
           initial="hidden"
           animate="show"
-          key={language} 
+          key={`grid-${language}`} 
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
         >
           {currentTopics.map((topic) => (
@@ -223,6 +259,44 @@ export default function UnitPage({ params }: Props) {
             </motion.div>
           ))}
         </motion.div>
+        ) : (
+             <div className="max-w-4xl mx-auto space-y-4">
+                {currentTopics.map((topic) => (
+                    <motion.div 
+                        key={topic.id} 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition-all group flex items-start gap-6 cursor-pointer"
+                        onClick={() => handleOpenDetails(topic)}
+                    >
+                        <div className="flex-shrink-0 w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center font-bold text-lg">
+                            {topic.id}
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-xl font-bold text-slate-900 mb-2">{topic.front}</h3>
+                            <p className="text-slate-600 leading-relaxed mb-3">{topic.back}</p>
+                            <div className="flex items-center gap-3">
+                                {topic.mnemonic && (
+                                    <span className="inline-flex items-center text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded">
+                                        <Lightbulb className="w-3 h-3 mr-1" /> Mnemonic
+                                    </span>
+                                )}
+                                {topic.pro_tip && (
+                                    <span className="inline-flex items-center text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
+                                        <Sparkles className="w-3 h-3 mr-1" /> Pro Tip
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                        <div className="self-center">
+                            <button className="p-2 text-slate-400 group-hover:text-indigo-600 transition-colors">
+                                <ArrowLeft className="w-5 h-5 rotate-180" />
+                            </button>
+                        </div>
+                    </motion.div>
+                ))}
+            </div>
+        )}
       </main>
 
       {/* Dynamic Sidebar */}

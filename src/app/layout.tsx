@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Outfit, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import PwaRegistry from "@/components/PwaRegistry";
+import { Suspense } from "react";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -41,7 +42,9 @@ export default function RootLayout({
         className={`${outfit.variable} ${playfair.variable} antialiased font-sans bg-gray-50 text-gray-900`}
       >
         <PwaRegistry />
+        <Suspense fallback={<div>Loading...</div>}>
         {children}
+        </Suspense>
       </body>
     </html>
   );
