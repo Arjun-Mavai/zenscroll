@@ -46,7 +46,7 @@ export const SideDrawer = ({ isOpen, onClose, title, children, className }: Side
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className={cn(
-              "fixed top-0 right-0 h-full w-[90%] max-w-md bg-white dark:bg-slate-900 shadow-2xl z-[101] flex flex-col border-l border-slate-200 dark:border-slate-800",
+              "fixed top-0 right-0 h-full w-[90%] max-w-md bg-white shadow-2xl z-[101] flex flex-col border-l  ",
               className
             )}
           >

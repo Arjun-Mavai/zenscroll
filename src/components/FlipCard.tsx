@@ -9,17 +9,31 @@ interface FlipCardProps {
   frontContent: React.ReactNode;
   backContent: React.ReactNode;
   className?: string;
+  isFlipped?: boolean;
+  onFlip?: () => void;
 }
 
-const FlipCard: React.FC<FlipCardProps> = ({ frontContent, backContent, className }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
+const FlipCard: React.FC<FlipCardProps> = ({ frontContent, backContent, className, isFlipped = false, onFlip }) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
   // Toggle flip on click
   const handleFlip = () => {
     if (!isAnimating) {
-      setIsFlipped(!isFlipped);
+      if (onFlip) {
+        onFlip();
+      }
       setIsAnimating(true);
+      
+      // Sound Effect (Viral Factor) - Short 'Woosh' / 'Click' Base64 to ensure it works immediately
+      const audio = new Audio("data:audio/wav;base64,UklGRl9vTQAXAAAAZnGl"); // Placeholder or use file path if preferred
+      // Using file path as primary for better quality, fallback to silent
+      const woosh = new Audio('/sounds/flip.mp3');
+      woosh.volume = 0.5;
+      woosh.play().catch((e) => {
+        audio.play().catch((e) => {
+          console.log("Audio play failed (user interaction needed or file missing):", e);
+        });
+      });
     }
   };
 

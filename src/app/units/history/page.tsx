@@ -160,7 +160,7 @@ export default function HistoryUnitPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans">
+    <div className="min-h-screen bg-slate-50 font-sans">
       {/* Premium Header */}
       <div className="bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-900 dark:to-indigo-950 py-12 px-4 shadow-xl">
         <div className="max-w-7xl mx-auto text-center text-white">
